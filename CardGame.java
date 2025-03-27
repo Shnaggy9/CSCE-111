@@ -46,7 +46,7 @@ public class CardGame {
             deck[randomIndex] = deck[i];
             deck[i] = rand;
             }
-
+        
         //dealing the shuffled deck to 2 players 
         String[] playerHand = new String[10]; // assuming max 10 cards for player
         String[] dealerHand = new String[10];
@@ -56,11 +56,29 @@ public class CardGame {
         playerHand[1] = deck[2]; // second card for player
         dealerHand[0] = deck[1]; // first card for dealer
         dealerHand[1] = deck[3]; // second card for dealer
-        
+        int deckIdex = 4;
         //printing the hands
         System.out.println("Dealer's Hand: " + dealerHand[0] + " [Hidden]");
         System.out.println();
         System.out.println(playerName + "'s Hand: " + playerHand[0] + " " + playerHand[1]);
+        
+        // Rule 8: Devil's Hand (chiggy's rule)
+        if (playerHand[0].charAt(0) == '6' && playerHand[1].charAt(0) == '6') {
+            System.out.println("Devil's Hand! You must hit at least once.");
+            // Force a hit
+            playerHand[playerCardCount++] = deck[deckIdex++];
+            // Show new hand
+            System.out.print(playerName + "'s Hand: ");
+        for (int i = 0; i < playerCardCount; i++) {
+            System.out.print(playerHand[i] + " ");
+            }
+        System.out.println();
+        // Check if 3rd card is also a 6
+        if (playerHand[2].charAt(0) == '6') {
+            System.out.println("Triple sixes! Automatic bust. You lose.");
+            continue; // ends this round immediately
+            }
+        }
 
         //checking for "Lucky 7's" (parkers rule)
         if (playerHand[0].charAt(0) == '7' && playerHand[1].charAt(0) == '7') {
@@ -70,7 +88,7 @@ public class CardGame {
 
         // Players Turn
         boolean playerBust = false;
-        int deckIdex = 4; // start from the 5th card in the deck
+            // start from the 5th card in the deck
 
         while (true) {
             int playerTotal = 0;
