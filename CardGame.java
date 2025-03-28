@@ -135,6 +135,28 @@ public class CardGame {
             continue;// end the game if player has lucky 7's
         }
 
+        // Shout Blackjack (mia's rule)
+        if (isBlackjack(playerHand)) {
+            System.out.print("You have a Blackjack! Type 'Blackjack!' to win: ");
+            String blackJackResponse = sncr.nextLine().trim().toLowerCase();    // player must type in 'Blackjack!' to win
+            if (blackJackResponse.equals("blackjack!")) {
+            System.out.println("You shouted 'Blackjack!' so you win!");
+            } 
+            else {
+            System.out.println("You didn't shout 'Blackjack!' so the Dealer wins!"); // if they don't the dealer wins
+            }
+            System.out.print("\nDo you want to play again? (y/n): ");   // prompts the player to play again
+            String playAgain = sncr.nextLine().toLowerCase();
+            if (playAgain.equals("y")) {
+                replay = true;   // another round begins
+            } 
+            else {
+                replay = false;
+                System.out.println("\nThank you for playing, " + playerName + "!"); // game will exit
+            }
+            continue;  
+        }
+
         // Players Turn
         boolean playerBust = false;
             // start from the 5th card in the deck
@@ -271,13 +293,13 @@ public class CardGame {
                     } else if (playerTotal > 21 || dealerTotal > playerTotal) {
                         System.out.println("Dealer wins :( ");
                         } else {
-                            System.out.println("It's a tie!");
+                            System.out.println("It's a tie, so the Dealer wins!");   // Dealer wins tie (mia's rule)
                 }
             }
         }
 
         // Ask if the player wants to play again
-        System.out.print("Do you want to play again? (y/n): ");
+        System.out.print("\nDo you want to play again? (y/n): ");
         String playAgain = sncr.nextLine().toLowerCase();
         if (playAgain.equals("y")) {
             replay = true; // set replay to true to play again
@@ -288,5 +310,11 @@ public class CardGame {
     } while (replay); // close the do-while loop
     System.out.println();
 }
+   
+    // part of mia's rule
+    public static boolean isBlackjack(String[] playerHand) {    
+        return (playerHand[0].charAt(0) == 'A' && (playerHand[1].charAt(0) == 'T' || playerHand[1].charAt(0) == 'J' || playerHand[1].charAt(0) == 'Q' || playerHand[1].charAt(0) == 'K')) ||
+               (playerHand[1].charAt(0) == 'A' && (playerHand[0].charAt(0) == 'T' || playerHand[0].charAt(0) == 'J' || playerHand[0].charAt(0) == 'Q' || playerHand[0].charAt(0) == 'K'));
+    }
 }
 
