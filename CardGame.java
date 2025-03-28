@@ -61,6 +61,55 @@ public class CardGame {
         System.out.println("Dealer's Hand: " + dealerHand[0] + " [Hidden]");
         System.out.println();
         System.out.println(playerName + "'s Hand: " + playerHand[0] + " " + playerHand[1]);
+
+        // Splitting Pairs (Domenic's Rule)
+        if (playerHand[0].charAt(0) == playerHand[1].charAt(0)) {
+            System.out.println("Player can split the pair! Would you like to split? (yes/no): ");
+            String splitChoice = sncr.nextLine().toLowerCase();
+            if (splitChoice.equals("yes")) {
+                System.out.println("You chose to split!");
+                // Splitting for first hand
+                String[] playerHand1 = {playerHand[0], deck[deckIdex++]};
+                int playerCardCount1 = 2;
+
+                // Splitting for second hand
+                String[] playerHand2 = {playerHand[1], deck[deckIdex++]};
+                int playerCardCount2 = 2;
+
+                // Show both hands after split
+                System.out.println(playerName + "'s First Hand: " + playerHand1[0] + " " + playerHand1[1]);
+                System.out.println(playerName + "'s Second Hand: " + playerHand2[0] + " " + playerHand2[1]);
+
+            }
+        }
+
+        // 5-Card Charlie (Domenic's Rule)
+        if (playerCardCount == 5) {
+            int playerTotal = 0;
+            int aceCount = 0;
+            // Calculate total value of the player's hand
+            for (int i = 0; i < playerCardCount; i++) {
+                char cardValue = playerHand[i].charAt(0);
+                if (cardValue == 'A') {
+                    aceCount++;
+                    playerTotal += 11; // counts Ace as 11 initially
+                } else if (cardValue == 'K' || cardValue == 'Q' || cardValue == 'J' || cardValue == 'T') {
+                    playerTotal += 10;
+                } else {
+                    playerTotal += cardValue - '0';
+                }
+            }
+            // Adjust for Aces to avoid busting
+            while (playerTotal > 21 && aceCount > 0) {
+                playerTotal -= 10; // counts Ace as a 1 instead of an 11
+                aceCount--;
+            }
+            // Check to see if player wins with 5 cards drawn without busting
+            if (playerTotal <= 21) {
+                System.out.println("You win with 5 Card Charlie!");
+                continue; // ends the game if players draw five cards without busting
+            }
+        }
         
         // Rule 8: Devil's Hand (chiggy's rule)
         if (playerHand[0].charAt(0) == '6' && playerHand[1].charAt(0) == '6') {
