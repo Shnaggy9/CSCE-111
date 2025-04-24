@@ -45,18 +45,20 @@ public class CardGame {
             String rand = deck[randomIndex];
             deck[randomIndex] = deck[i];
             deck[i] = rand;
-            }
+        }
         
         //dealing the shuffled deck to 2 players 
         String[] playerHand = new String[10]; // assuming max 10 cards for player
         String[] dealerHand = new String[10];
         int playerCardCount = 2;
         int dealerCardCount = 2;
+        int deckIndex = 4;
+        
         playerHand[0] = deck[0]; // first card for player
         playerHand[1] = deck[2]; // second card for player
         dealerHand[0] = deck[1]; // first card for dealer
         dealerHand[1] = deck[3]; // second card for dealer
-        int deckIdex = 4;
+
         //printing the hands
         System.out.println("Dealer's Hand: " + dealerHand[0] + " [Hidden]");
         System.out.println();
@@ -69,17 +71,49 @@ public class CardGame {
             if (splitChoice.equals("yes")) {
                 System.out.println("You chose to split!");
                 // Splitting for first hand
-                String[] playerHand1 = {playerHand[0], deck[deckIdex++]};
+                String[] playerHand1 = {playerHand[0], deck[deckIndex++]};
                 int playerCardCount1 = 2;
 
                 // Splitting for second hand
-                String[] playerHand2 = {playerHand[1], deck[deckIdex++]};
+                String[] playerHand2 = {playerHand[1], deck[deckIndex++]};
                 int playerCardCount2 = 2;
 
                 // Show both hands after split
                 System.out.println(playerName + "'s First Hand: " + playerHand1[0] + " " + playerHand1[1]);
                 System.out.println(playerName + "'s Second Hand: " + playerHand2[0] + " " + playerHand2[1]);
 
+                //split swap (Parker's Rule)
+                System.out.print("Would you like to swap one of your cards with a random card from the deck? (yes/no): ");
+                String swapChoice = sncr.nextLine().toLowerCase();
+                if (swapChoice.equals("yes")) {
+                    System.out.print("Which hand would you like to swap a card from? (1/2): ");
+                    int handChoice = sncr.nextInt();
+                    sncr.nextLine();
+
+                    System.out.print("Which card would you like to swap? (1/2): ");
+                    int cardToSwap = sncr.nextInt();
+                    sncr.nextLine();
+
+                    if (handChoice == 1 && cardToSwap == 1) {
+                        String tempCard = playerHand1[0];
+                        playerHand1[0] = deck[deckIndex++];
+                        System.out.println("You swapped " + tempCard + " for " + playerHand1[0]);
+                    } else if (handChoice == 1 && cardToSwap == 2) {
+                        String tempCard = playerHand1[1];
+                        playerHand1[1] = deck[deckIndex++];
+                        System.out.println("You swapped " + tempCard + " for " + playerHand1[1]);
+                    } else if (handChoice == 2 && cardToSwap == 1) {
+                        String tempCard = playerHand2[0];
+                        playerHand2[0] = deck[deckIndex++];
+                        System.out.println("You swapped " + tempCard + " for " + playerHand2[0]);
+                    } else if (handChoice == 2 && cardToSwap == 2) {
+                        String tempCard = playerHand2[1];
+                        playerHand2[1] = deck[deckIndex++];
+                        System.out.println("You swapped " + tempCard + " for " + playerHand2[1]);
+                    } else {
+                        System.out.println("Invalid choice.");
+                    }
+                }
             }
         }
 
@@ -115,15 +149,15 @@ public class CardGame {
         if (playerHand[0].charAt(0) == '6' && playerHand[1].charAt(0) == '6') {
             System.out.println("Devil's Hand! You must hit at least once.");
             // Force a hit
-            playerHand[playerCardCount++] = deck[deckIdex++];
+            playerHand[playerCardCount++] = deck[deckIndex++];
             // Show new hand
             System.out.print(playerName + "'s Hand: ");
-        for (int i = 0; i < playerCardCount; i++) {
+            for (int i = 0; i < playerCardCount; i++) {
             System.out.print(playerHand[i] + " ");
             }
-        System.out.println();
-        // Check if 3rd card is also a 6
-        if (playerHand[2].charAt(0) == '6') {
+            System.out.println();
+            // Check if 3rd card is also a 6
+            if (playerHand[2].charAt(0) == '6') {
             System.out.println("Triple sixes! Automatic bust. You lose.");
             continue; // ends this round immediately
             }
@@ -157,159 +191,132 @@ public class CardGame {
             continue;  
         }
 
-        // Players Turn
-        boolean playerBust = false;
-            // start from the 5th card in the deck
+       // Player's Turn
+       boolean playerBust = false;
+       while (true) {
+           int playerTotal = 0, aceCount = 0;
+           for (int i = 0; i < playerCardCount; i++) {
+               char card = playerHand[i].charAt(0);
+               if (card == 'A') {
+                   aceCount++;
+                   playerTotal += 11;
+               } else if (card == 'K' || card == 'Q' || card == 'J' || card == 'T') {
+                   playerTotal += 10;
+               } else {
+                   playerTotal += card - '0';
+               }
+           }
+           while (playerTotal > 21 && aceCount-- > 0) {
+               playerTotal -= 10;
+           }
 
-        while (true) {
-            int playerTotal = 0;
-            int aceCount = 0;
+           System.out.println("Your total is: " + playerTotal);
 
-            for (int i = 0; i < playerCardCount; i++) {
-                char cardValue = playerHand[i].charAt(0);
-                if (cardValue == 'A') {
-                    aceCount++;
-                    playerTotal += 11; // count Ace as 11 initially
-                } else if (cardValue == 'K' || cardValue == 'Q' || cardValue == 'J' || cardValue == 'T') {
-                    playerTotal += 10; // face cards are worth 10
-                } else {
-                    playerTotal += cardValue - '0'; // numeric cards are worth their value
-                }
-            }
+           if (playerTotal > 21) {
+               System.out.println("Bust! You lose.");
+               playerBust = true;
+               break;
+           }
 
-            while (playerTotal > 21 && aceCount > 0) {
-                playerTotal -= 10; // count Ace as 1 instead of 11
-                aceCount--;
-            }
+           System.out.print("Do you want to hit or stand? (h/s): ");
+           String action = sncr.nextLine().toLowerCase();
+           if (action.equals("h")) {
+               playerHand[playerCardCount++] = deck[deckIndex++];
+               System.out.print(playerName + "'s Hand: ");
+               for (int i = 0; i < playerCardCount; i++) {
+                   System.out.print(playerHand[i] + " ");
+               }
+               System.out.println();
+           } else if (action.equals("s")) {
+               break;
+           } else {
+               System.out.println("Invalid input.");
+           }
+       }
 
-            System.out.println("Your total is: " + playerTotal);
+       // Dealer's Turn
+       if (!playerBust) {
+           System.out.println("Dealer's Hand: " + dealerHand[0] + " " + dealerHand[1]);
+           while (true) {
+               int dealerTotal = 0, aceCount = 0;
+               for (int i = 0; i < dealerCardCount; i++) {
+                   char card = dealerHand[i].charAt(0);
+                   if (card == 'A') {
+                       aceCount++;
+                       dealerTotal += 11;
+                   } else if (card == 'K' || card == 'Q' || card == 'J' || card == 'T') {
+                       dealerTotal += 10;
+                   } else {
+                       dealerTotal += card - '0';
+                   }
+               }
+               while (dealerTotal > 21 && aceCount-- > 0) {
+                   dealerTotal -= 10;
+               }
 
-            if (playerTotal > 21) {
-                System.out.println("");
-                System.out.println("Bust! You lose.");
-                playerBust = true;
-                break; // end the player's turn if bust
-            }
+               if (dealerTotal >= 17) break;
 
-            System.out.println();
-            System.out.print("Do you want to hit or stand? (h/s): ");
-            String action = sncr.nextLine().toLowerCase();
-            if (action.equals("h")) {
-                playerHand[playerCardCount++] = deck[deckIdex++]; // deal next card
-                System.out.print( playerName + "'s Hand: ");
-                for (int i = 0; i < playerCardCount; i++) {
-                    System.out.print(playerHand[i] + " ");
-                }
-                System.out.println();
-            } else if (action.equals("s")) {
-                break; // end the player's turn if stand
-            } else {
-                System.out.println("Invalid input. Please enter 'h' to hit or 's' to stand.");
-            }
-        }
-        
-        // Dealer's Turn
-        if (!playerBust) {
-            System.out.println("Dealer's Hand: " + dealerHand[0] + " " + dealerHand[1]);
+               dealerHand[dealerCardCount++] = deck[deckIndex++];
+               System.out.print("Dealer's Hand: ");
+               for (int i = 0; i < dealerCardCount; i++) {
+                   System.out.print(dealerHand[i] + " ");
+               }
+               System.out.println();
+           }
 
-            while (true) {
-                int dealerTotal = 0;
-                int dealerAceCount = 0;
+           // Final results
+           int playerTotal = 0, dealerTotal = 0, playerAce = 0, dealerAce = 0;
+           for (int i = 0; i < playerCardCount; i++) {
+               char c = playerHand[i].charAt(0);
+               if (c == 'A') {
+                   playerAce++;
+                   playerTotal += 11;
+               } else if (c == 'K' || c == 'Q' || c == 'J' || c == 'T') {
+                   playerTotal += 10;
+               } else {
+                   playerTotal += c - '0';
+               }
+           }
+           while (playerTotal > 21 && playerAce-- > 0) playerTotal -= 10;
 
-                for (int i = 0; i < dealerCardCount; i++) {
-                    char cardValue = dealerHand[i].charAt(0);
-                    if (cardValue == 'A') {
-                        dealerAceCount++;
-                        dealerTotal += 11; // count Ace as 11 initially
-                    } else if (cardValue == 'K' || cardValue == 'Q' || cardValue == 'J' || cardValue == 'T') {
-                        dealerTotal += 10; // face cards are worth 10
-                    } else {
-                        dealerTotal += cardValue - '0'; // numeric cards are worth their value
-                    }
-                }
+           for (int i = 0; i < dealerCardCount; i++) {
+               char c = dealerHand[i].charAt(0);
+               if (c == 'A') {
+                   dealerAce++;
+                   dealerTotal += 11;
+               } else if (c == 'K' || c == 'Q' || c == 'J' || c == 'T') {
+                   dealerTotal += 10;
+               } else {
+                   dealerTotal += c - '0';
+               }
+           }
+           while (dealerTotal > 21 && dealerAce-- > 0) dealerTotal -= 10;
 
-                while (dealerTotal > 21 && dealerAceCount > 0) {
-                    dealerTotal -= 10; // count Ace as 1 instead of 11
-                    dealerAceCount--;
-                }
+           System.out.println("\nFinal Results:");
+           System.out.println(playerName + "'s total: " + playerTotal);
+           System.out.println("Dealer's total: " + dealerTotal);
+           System.out.println();
 
-                if (dealerTotal >= 17) {
-                    break; // end the dealer's turn if total is 17 or more
-                }
+           if (dealerTotal > 21 || playerTotal > dealerTotal) {
+               System.out.println(playerName + " wins!");
+           } else if (playerTotal > 21 || dealerTotal > playerTotal) {
+               System.out.println("Dealer wins :( ");
+           } else {
+               System.out.println("It's a tie, so the Dealer wins");
+           }
+       }
 
-                dealerHand[dealerCardCount++] = deck[deckIdex++]; // deal next card
-                System.out.print("Dealer's Hand: ");
-                for (int i = 0; i < dealerCardCount; i++) {
-                    System.out.print(dealerHand[i] + " ");
-                }
-                System.out.println();
+       System.out.print("Do you want to play again? (y/n): ");
+       String playAgain = sncr.nextLine().toLowerCase();
+       replay = playAgain.equals("y");
 
-                //determine winner
-                int playerTotal = 0; dealerTotal = 0;
-                int aceCount = 0; dealerAceCount = 0;
+       if (!replay) {
+           System.out.println("Thank you for playing, " + playerName + "!");
+       }
 
-                for (int i= 0; i <playerCardCount; i++) {
-                    char cardValue = playerHand[i].charAt(0);
-                    if (cardValue == 'A') {
-                        aceCount++;
-                        playerTotal += 11;
-                    } else if (cardValue == 'K' || cardValue == 'Q' || cardValue == 'J' || cardValue == 'T') {
-                        playerTotal += 10; 
-                    } else {
-                        playerTotal += cardValue - '0'; 
-                    }
-                }
-
-                while (playerTotal > 21 && aceCount > 0) {
-                    playerTotal -= 10; 
-                    aceCount--;
-                }
-
-                for (int i = 0; i < dealerCardCount; i++) {
-                    char cardValue = dealerHand[i].charAt(0);
-                    if (cardValue == 'A') {
-                        dealerAceCount++;
-                        dealerTotal += 11; 
-                    } else if (cardValue == 'K' || cardValue == 'Q' || cardValue == 'J' || cardValue == 'T') {
-                        dealerTotal += 10; 
-                    } else {
-                        dealerTotal += cardValue - '0'; 
-                    }
-                }
-                
-                while (dealerTotal > 21 && dealerAceCount > 0) {
-                    dealerTotal -= 10; 
-                    dealerAceCount--;
-                }
-
-                //printing results
-                System.out.println("\nFinal Results:");
-                System.out.println(playerName + "'s total: " + playerTotal);
-                System.out.println("Dealer's total: " + dealerTotal);
-                System.out.println();
-
-                if (dealerTotal > 21 || playerTotal > dealerTotal) {
-                    System.out.println(playerName + " wins!");
-                    } else if (playerTotal > 21 || dealerTotal > playerTotal) {
-                        System.out.println("Dealer wins :( ");
-                        } else {
-                            System.out.println("It's a tie, so the Dealer wins!");   // Dealer wins tie (mia's rule)
-                }
-            }
-        }
-
-        // Ask if the player wants to play again
-        System.out.print("\nDo you want to play again? (y/n): ");
-        String playAgain = sncr.nextLine().toLowerCase();
-        if (playAgain.equals("y")) {
-            replay = true; // set replay to true to play again
-        } else {
-            replay = false; // set replay to false to end the game
-            System.out.println("Thank you for playing, " + playerName + "!"); // end message
-        }
-    } while (replay); // close the do-while loop
-    System.out.println();
+   } while (replay);
 }
+
    
     // part of mia's rule
     public static boolean isBlackjack(String[] playerHand) {    
